@@ -33,13 +33,26 @@ object Xml {
 
   }
 
+  def getDoubleOrMinusOne(str: String) = {
+    var ret: Double = -1
+    try {
+      ret = re_nonDigit.replaceAllIn(str, "").toDouble
+    } catch {
+      case e: Exception => 
+        println(e)
+    }
+
+    ret
+  }
+
   def comprehensive(loadnode: xml.Node) = new Comprehensive(loadnode)
 }
 
 
 class Comprehensive(loadnode: xml.Node) {
 
-  import Xml.{re_nonDigit, numericDateToReadable}
+  // Import the helper methods from our companion object
+  import Xml._
 
   // rotor name
   val rotorName = (loadnode \\ "rotorName").text
@@ -72,8 +85,15 @@ class Comprehensive(loadnode: xml.Node) {
     println("Error: Not all sequences are the same size!")
 
   for(i <- 0 until analyteNodes.size) {
+
     analyteResults += 
-      (new Analyte(analyteNames(i).text, re_nonDigit.replaceAllIn(analyteValues(i).text, "").toDouble, analyteLows(i).text.toDouble, analyteHighs(i).text.toDouble, analyteConcentrations(i).text))
+      (new Analyte(
+        analyteNames(i).text,
+        getDoubleOrMinusOne(analyteValues(i).text),
+        getDoubleOrMinusOne(analyteLows(i).text),
+        getDoubleOrMinusOne(analyteHighs(i).text),
+        analyteConcentrations(i).text)
+      )
   }
 
 
@@ -88,9 +108,36 @@ class Comprehensive(loadnode: xml.Node) {
   // ICT
   val ict = (loadnode \\ "ict" \ "index").text
 
+
+  // Ratio of Sodium over Potasium 
+
+  def getValue(analytes :xml.NodeSeq, name: String): Double = {
+    var x:Double = -1 
+    analytes.foreach(node => 
+      if((node \\ "name").text == name) 
+          { x = getDoubleOrMinusOne((node \\ "value").text); return x }     // Return value
+    )
+    x   // Return erroneous zero
+  }
+
+  // get values from analytes 
+  val sodiumValue = getValue(analyteNodes, "NA+")
+  val potasiumValue = getValue(analyteNodes, "K+")
+
+  // calculate ratio
+  val ratioNaKLongDecimal = {
+    var ratio: Double = -1 
+    try {
+      ratio = sodiumValue / potasiumValue
+    } catch { case e: Exception => println(e) }
+    ratio
+  }
+
+  val ratioNaK = BigDecimal(ratioNaKLongDecimal).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+
   val horzSp = ("."*78) + "\n"
   private var printOut =
-    rotorName + "\n" + date+ "\n" + "Sample Type:\t" + sampleType+ "\n" + "Patient ID:\t" + patientName+ "\n" + horzSp + analyteResults.mkString("\n") + "\n\nQC\n" + "HEM " + hem + "\tLIP " + lip +"\tICT " + ict
+    rotorName + "\n" + date+ "\n" + "Sample Type:\t" + sampleType+ "\n" + "Patient ID:\t" + patientName+ "\n" + horzSp + analyteResults.mkString("\n") + "\n\nQC\n" + "HEM " + hem + "\tLIP " + lip +"\tICT " + ict + "\nSodium over Potasium Na/K+ " + ratioNaK
 
   def getResults = printOut
   

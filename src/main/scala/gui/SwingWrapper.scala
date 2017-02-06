@@ -26,6 +26,8 @@ object SwingWrapper extends SimpleSwingApplication {
     // radio buttons
     val comprehensiveRadioButton = new RadioButton { text = "Comprehensive Diagnostics" ; minimumSize = buttonDimension }
     val kidneyRadioButton = new RadioButton { text = "kidney Diagnostics"; minimumSize = buttonDimension  }
+    val allCompInPathRadioButton = new RadioButton { text = "All Comprehensive in directory"; minimumSize = buttonDimension  }
+
 
     // text field,  area and scroll pane
     val pathAndFile = new TextField { text = ""; minimumSize = textFieldDimension; maximumSize = textFieldDimension } 
@@ -41,6 +43,7 @@ object SwingWrapper extends SimpleSwingApplication {
         contents += new BoxPanel(Orientation.Vertical) {
 
           contents += comprehensiveRadioButton
+          contents += allCompInPathRadioButton
           contents += startButton
         }
 
@@ -64,15 +67,25 @@ object SwingWrapper extends SimpleSwingApplication {
       case ButtonClicked(b) => {
 
         if(b.text == "Convert"){
+
           if(comprehensiveRadioButton.selected){
 
-          // file to convert
-            val loadnode = xml.XML.loadFile(pathAndFile.text)
+            // file to convert
+              val loadnode = xml.XML.loadFile(pathAndFile.text)
 
-          // add data to text field
-          textArea.text += parser.Xml.comprehensive(loadnode).getResults
-        }
+            // add data to text field
+            textArea.text += parser.Xml.comprehensive(loadnode).getResults
+          } else if (allCompInPathRadioButton.selected){
 
+            val fileProcessor = filehandler.BatchFileProcessor(pathAndFile.text, "Comp")
+          
+            def workMethod(xmlFile : java.io.File) = {
+              val loadnode = xml.XML.loadFile(xmlFile)
+              textArea.text += ("\n"+parser.Xml.comprehensive(loadnode).getResults+"\n\n")
+            }
+
+            worker.CurriedWorkAction(fileProcessor.getFiles)(workMethod)
+          }
 
         } else if (b.text == "Clear Text"){
 

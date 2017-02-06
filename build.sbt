@@ -21,7 +21,7 @@ lazy val app = (project in file(".")).
   settings(commonSettings: _*).
   settings(
     assemblyJarName in assembly := "AbaxisXmlReader.jar",
-    mainClass in assembly := Some("GUI.SwingWrapper"),
+    mainClass in assembly := Some("gui.SwingWrapper"),
     fullClasspath in assembly := (fullClasspath in Compile).value
   )
 
