@@ -4,13 +4,16 @@ libraryDependencies ++= {
       "org.scalatest" %% "scalatest" % "3.0.0" % "test",
       "org.jsoup" % "jsoup" % "1.8.3",
       "org.scala-lang.modules" %% "scala-swing" % "2.0.0-M2",
-      "org.scala-lang.modules" % "scala-xml_2.12" % "1.0.6"
+      "org.scala-lang.modules" % "scala-xml_2.12" % "1.0.6",
+      "io.github.hugoriggs" % "fileprocs_2.12" % "1.0"
     )
 }
 
 lazy val commonSettings = Seq(
-  version := "1.0",
+  version := "1.1",
   scalaVersion := "2.12.1",
+  name := "AbaxisBloodMachineXmlReader",
+  organization := "io.github.hugoriggs",
   test in assembly := {}
 )
 
@@ -21,7 +24,7 @@ lazy val app = (project in file(".")).
   settings(commonSettings: _*).
   settings(
     assemblyJarName in assembly := "AbaxisXmlReader.jar",
-    mainClass in assembly := Some("gui.SwingWrapper"),
+    mainClass in assembly := Some("io.github.hugoriggs.AbaxisBloodMachineXmlReader.gui.SwingWrapper"),
     fullClasspath in assembly := (fullClasspath in Compile).value
   )
 

@@ -1,7 +1,8 @@
-package parser
+package io.github.hugoriggs.AbaxisBloodMachineXmlReader.parser
 
 
-import analyte._
+import io.github.hugoriggs.AbaxisBloodMachineXmlReader.analyte._
+//import analyte._
 
 
 object Xml {
@@ -38,8 +39,7 @@ object Xml {
     try {
       ret = re_nonDigit.replaceAllIn(str, "").toDouble
     } catch {
-      case e: Exception => 
-        println(e)
+      case e: Exception => println(e)
     }
 
     ret

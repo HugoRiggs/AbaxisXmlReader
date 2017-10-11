@@ -1,4 +1,4 @@
-package analyte
+package io.github.hugoriggs.AbaxisBloodMachineXmlReader.analyte
 
 class Analyte(name: String, value: Double, low: Double, high: Double, concentration: String) {
 
