@@ -1,4 +1,4 @@
-package analyte
+package abaxis_xml_reader.analyte
 
 class Analyte(name: String, value: Double, low: Double, high: Double, concentration: String) {
 

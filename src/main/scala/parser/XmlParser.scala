@@ -1,7 +1,7 @@
-package parser
+package abaxis_xml_reader.parser
 
 
-import analyte._
+import abaxis_xml_reader.analyte._
 
 
 object Xml {
