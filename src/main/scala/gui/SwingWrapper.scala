@@ -1,5 +1,10 @@
 package abaxis_xml_reader.gui 
 
+/*
+ * boundary class for the abaxis xml reader program
+ * note: declared as an object (see Scala lang.), it is always running during program execution
+ */
+
 import swing._
 import swing.event._
 import java.awt.Color._
@@ -8,12 +13,14 @@ import javax.swing.filechooser.FileSystemView
 import abaxis_xml_reader.Controller
 
 object SwingWrapper extends SimpleSwingApplication {
-  // final dimensions (constant)
-  private val mainDimension = new Dimension(888, 777)
-  private val scrollPaneDimension = new Dimension(800, 500)
-  private val textFieldDimension = new Dimension(500, 25)
+
+  // FINAL DIMENSIONS (CONSTANT)
+  private val mainDimension = new Dimension(850, 750)
+  private val scrollPaneDimension = new Dimension(800, 700)
+  private val textFieldDimension = new Dimension(800, 25)
   private val buttonDimension = new Dimension(50, 25)
-  // buttons
+
+  // BUTTONS
   private val startButton = new Button
   {
     text = "Convert"; minimumSize = buttonDimension
@@ -24,6 +31,7 @@ object SwingWrapper extends SimpleSwingApplication {
   }
   private val clearButton = new Button
   {
+    foreground=WHITE
     background=RED
     text = "Clear Text" ; minimumSize = buttonDimension
   }
@@ -32,8 +40,9 @@ object SwingWrapper extends SimpleSwingApplication {
     background=GREEN
     text = "choose file" ; minimumSize = buttonDimension
   }
-  // radio buttons
-  // text field,  area and scroll pane
+
+  // RADIO BUTTONS
+  // TEXT FIELD,  AREA AND SCROLL PANe
   private  val pathAndFile = new TextField 
   { 
     text = ""; minimumSize = textFieldDimension; maximumSize = textFieldDimension 
@@ -47,13 +56,15 @@ object SwingWrapper extends SimpleSwingApplication {
     minimumSize = scrollPaneDimension; maximumSize = scrollPaneDimension 
   }
 
-  def top = new MainFrame {
+  // ENTRY POINT
+  def top = new MainFrame 
+  {
     title = "Abaxis XML Converter"
     size = mainDimension // application dimensions (window size)
     minimumSize = mainDimension
-    // initialize controller class
-    val controller = new Controller()
-    pathAndFile.text = controller.load_value_from_storage("defDir")
+    val controller = new Controller() // initialize controller class
+    pathAndFile.text = controller.load_value("defDir")
+
     // DESIGN STRUCTURE
     // VERTICAL
     contents = new BoxPanel(Orientation.Vertical)
@@ -89,26 +100,36 @@ object SwingWrapper extends SimpleSwingApplication {
       case ButtonClicked(b) =>
       {
 
-        if(b.text == "Convert")
+        if(b.text == "Convert") // button convert
         {
           // file to convert
-          val ret = controller.convert(pathAndFile.text)//xml.XML.loadFile(pathAndFile.text)
+          val ret = controller.convert(pathAndFile.text)
 
-          // add data to text field
+          // add converted data to text field
           textArea.text += ret
 
-        } else if (b.text == "Clear Text")
+        } else if (b.text == "Clear Text") // button clear text
         {
-          textArea.text = ""
-        } else if (b.text == "Convert All")
+          textArea.text = "" // make text body null
+        } else if (b.text == "Convert All") // button convert all xml files
         {
-          val ret = controller.convert_all(pathAndFile.text)
+          // get results of convert all method
+          val ret = controller.convert_all(pathAndFile.text) 
+
+          // add results to text body
           textArea.text = ret
 
         }
         else if (b.text == "choose file")
         {
-          val file_chooser = new JFileChooser(FileSystemView.getFileSystemView.getHomeDirectory())
+          // load the previously used directory
+          var start_in = controller.load_value("defDir")
+
+          // open on user home
+          //val file_chooser = new JFileChooser(FileSystemView.getFileSystemView.getHomeDirectory())
+          // open on previous dir
+          val file_chooser = new JFileChooser(start_in)
+          // open file chooser 
           file_chooser.showOpenDialog(null)
           val file = file_chooser.getSelectedFile()
           pathAndFile.text = file.getAbsolutePath()

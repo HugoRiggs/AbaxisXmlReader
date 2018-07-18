@@ -99,7 +99,7 @@ class Controller
       false
   }
 
-  def load_value_from_storage(k: String) : String = 
+  def load_value(k: String) : String = 
   {
     val storage_dir = new File(System.getProperty("user.home"), "abaxis_xml_reader")
     val b = storage_dir.mkdir()
