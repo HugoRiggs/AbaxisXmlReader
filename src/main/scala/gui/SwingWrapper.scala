@@ -7,10 +7,16 @@ package abaxis_xml_reader.gui
 
 import swing._
 import swing.event._
+import swing.Component._
+
+import java.awt.Robot
+import java.awt.event.KeyEvent
 import java.awt.Color._
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileSystemView
+
 import abaxis_xml_reader.Controller
+
 
 object SwingWrapper extends SimpleSwingApplication {
 
@@ -40,8 +46,19 @@ object SwingWrapper extends SimpleSwingApplication {
     background=GREEN
     text = "choose file" ; minimumSize = buttonDimension
   }
+  private val select_all_button = new Button
+  {
+    background=YELLOW
+    foreground=BLUE
+    text = "select all" ; minimumSize = buttonDimension
+  }
+  private val copy_button = new Button
+  {
+    background=YELLOW
+    foreground=BLUE
+    text = "copy" ; minimumSize = buttonDimension
+  }
 
-  // RADIO BUTTONS
   // TEXT FIELD,  AREA AND SCROLL PANe
   private  val pathAndFile = new TextField 
   { 
@@ -50,12 +67,36 @@ object SwingWrapper extends SimpleSwingApplication {
   private val textArea = new TextArea 
   {
     editable = false;
+    listenTo(mouse.clicks)
+    reactions += 
+    {
+      case c: MouseClicked => 
+        val p = c.point
+        if ( c.modifiers == 256 ) {
+          ctrl_c()
+
+          println(  "mouse clicked at " + c.point
+                 +"\nmodifier = " + c.modifiers)
+        }
+    }
   }
   private val scrollPane = new ScrollPane(textArea) 
   {
     minimumSize = scrollPaneDimension; maximumSize = scrollPaneDimension 
   }
 
+  def ctrl_c() = {
+     val robot = new Robot()
+     robot.keyPress(KeyEvent.VK_CONTROL)
+     Thread.sleep(200)
+     robot.keyPress(KeyEvent.VK_C)
+     Thread.sleep(200)
+     robot.keyRelease(KeyEvent.VK_C)
+     Thread.sleep(200)
+     robot.keyRelease(KeyEvent.VK_CONTROL)
+     Thread.sleep(200)
+  }
+  
   // ENTRY POINT
   def top = new MainFrame 
   {
@@ -65,7 +106,7 @@ object SwingWrapper extends SimpleSwingApplication {
     val controller = new Controller() // initialize controller class
     pathAndFile.text = controller.load_value("defDir")
 
-    // DESIGN STRUCTURE
+    // DESIGN STRUCTURE~
     // VERTICAL
     contents = new BoxPanel(Orientation.Vertical)
     {
@@ -86,19 +127,42 @@ object SwingWrapper extends SimpleSwingApplication {
         {
           contents += startButton
           contents += startAllButton
+//          contents += select_all_button
+          contents += copy_button
           contents += clearButton
         }
       }
-//        border = Swing.EmptyBorder(30, 30, 10, 10)
     }
+
+    // DECLARE COMPONENTS AS LISTENERS~
     listenTo(startButton)
     listenTo(startAllButton)
     listenTo(clearButton)
     listenTo(select_file_button)
+//    listenTo(select_all_button)
+    listenTo(copy_button)
+
     reactions +=
     {
       case ButtonClicked(b) =>
       {
+        if(b.text =="select all")
+        {
+          textArea.selectAll()
+        }
+
+        if(b.text == "copy")
+        {
+//          ctrl_c()
+          import java.awt.datatransfer.StringSelection
+          import java.awt.datatransfer.Clipboard
+          import java.awt.Toolkit
+
+          val selection = new StringSelection(textArea.text);
+          val clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+          clipboard.setContents(selection, selection); 
+          println("COPIED TO CLIPBOARD")
+        }
 
         if(b.text == "Convert") // button convert
         {
